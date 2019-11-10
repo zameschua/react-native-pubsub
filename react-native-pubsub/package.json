@@ -1,0 +1,39 @@
+{
+  "name": "react-native-pubsub",
+  "title": "React Native Pubsub",
+  "version": "1.0.0",
+  "description": "Pub/Sub abstraction layer for React Native",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/github_account/react-native-pubsub.git",
+    "baseUrl": "https://github.com/github_account/react-native-pubsub"
+  },
+  "keywords": [
+    "react-native"
+  ],
+  "author": {
+    "name": "Zames Chua",
+    "email": "zames.chua@gmail.com"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "16.9.0",
+    "react-native": "0.61.4"
+  },
+  "devDependencies": {
+    "react": "16.9.0",
+    "react-native": "0.61.4"
+  },
+  "dependencies": {
+    "@react-native-community/netinfo": "^4.6.0",
+    "axios": "^0.19.0",
+    "react-native-http-bridge": "^0.6.1",
+    "react-native-network-info": "^5.2.1"
+  }
+}
