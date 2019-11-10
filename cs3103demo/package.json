@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "16.9.0",
     "react-native": "0.61.4",
-    "react-native-pubsub": "/Users/zames/Desktop/cs3103-proj/react-native-pubsub"
+    "react-native-pubsub": "/Users/zames/desktop/cs3103-proj/react-native-pubsub"
   },
   "devDependencies": {
     "@babel/core": "^7.7.2",
