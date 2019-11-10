@@ -5291,7 +5291,7 @@ react-native-network-info@^5.2.1:
   resolved "https://registry.yarnpkg.com/react-native-network-info/-/react-native-network-info-5.2.1.tgz#b701f10d4ed1aeadcfe77b197328d1ae846f6d3a"
   integrity sha512-iam74xXtrSqqZurCl1/bSjZ9jXcsJY84g7brx1/4uVGCY26c6m+4CArHNSHOsz5ATg2NQT+81sjNy0KlCPyK4g==
 
-react-native-pubsub@/Users/zames/desktop/cs3103-proj/react-native-pubsub:
+"react-native-pubsub@file:../../../desktop/cs3103-proj/react-native-pubsub":
   version "1.0.0"
   dependencies:
     "@react-native-community/netinfo" "^4.6.0"
