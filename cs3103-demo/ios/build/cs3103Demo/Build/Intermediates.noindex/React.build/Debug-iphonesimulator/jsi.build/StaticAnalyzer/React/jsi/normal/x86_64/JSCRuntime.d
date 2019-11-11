@@ -1,0 +1,5 @@
+dependencies: \
+  /Users/zames/Desktop/cs3103-proj/cs3103-demo/node_modules/react-native/ReactCommon/jsi/JSCRuntime.cpp \
+  /Users/zames/Desktop/cs3103-proj/cs3103-demo/node_modules/react-native/ReactCommon/jsi/JSCRuntime.h \
+  /Users/zames/Desktop/cs3103-proj/cs3103-demo/node_modules/react-native/ReactCommon/jsi/jsi.h \
+  /Users/zames/Desktop/cs3103-proj/cs3103-demo/node_modules/react-native/ReactCommon/jsi/jsi-inl.h
