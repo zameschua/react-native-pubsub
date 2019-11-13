@@ -1,26 +1,36 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-var httpBridge = require('react-native-http-bridge');
+import PubSub from './temp/PubSub';
 
-export default function App() {
-  // initalize the server (now accessible via localhost:1234)
-  httpBridge.start(5561, function(request) {
+export default class App extends Component {
+  componentDidMount() {
+    PubSub.init()
+        .then(() => {
+          console.log('initing');
+          PubSub.subscribe('food', data => console.log(data));
+          PubSub.publish('food', {
+            action: "ADD",
+            item: {
+              itemData: 'itemData',
+            }
+          })
+        })
+  }
 
-    // you can use request.url, request.type and request.postData here
-    if (request.type === "GET" && request.url.split("/")[1] === "users") {
-      httpBridge.respond(200, "application/json", "{\"message\": \"OK\"}");
-    } else {
-      httpBridge.respond(400, "application/json", "{\"message\": \"Bad Request\"}");
-    }
+  componentWillUnmount() {
+    PubSub.stop();
+  }
 
-  });
+  render() {
+    return (
+        <View style={styles.container}>
+          <Text>Open up App.js to start working on your app!</Text>
+        </View>
+    );
+  }
 
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+
 }
 
 const styles = StyleSheet.create({

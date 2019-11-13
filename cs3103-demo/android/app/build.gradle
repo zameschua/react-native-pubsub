@@ -139,6 +139,9 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-network-info')
+    implementation project(':react-native-http-bridge')
+    implementation project(':@react-native-community_netinfo')
     implementation project(':react-native-screens')
     implementation project(':react-native-reanimated')
     implementation project(':react-native-gesture-handler')

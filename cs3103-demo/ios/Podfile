@@ -32,4 +32,8 @@ target 'cs3103Demo' do
 
   use_unimodules!
 
+  pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
+
+  pod 'react-native-network-info', :path => '../node_modules/react-native-network-info'
+
 end
