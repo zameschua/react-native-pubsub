@@ -44,9 +44,9 @@ const PubSub = {
         // The callback is called every time the connection state changes
         // Refer to https://github.com/react-native-community/react-native-netinfo
         NetInfo.addEventListener(state => {
-            console.log(`PubSub: The connection state has changed to ${state.type}`);
+            console.log(`PubSub ${this.ipAddress}: The connection state has changed to ${state.type}`);
             if (state.type === "wifi" && state.isConnected) {
-                this.joinNetwork();
+                this._joinNetwork();
             }
         });
     },
@@ -129,7 +129,7 @@ const PubSub = {
             await this._leaveNetwork();
             httpBridge.stop();
         } catch (error) {
-            console.error(error);
+            console.error(`PubSub ${this.ipAddress}: ` + error);
             throw new Error("react-native-pubsub failed to shut down gracefully");
         }
     },
@@ -145,7 +145,7 @@ const PubSub = {
                     this.peers[ipAddress] = false;
                 }
             } catch(error) {
-                console.log(error);
+                console.log(`PubSub ${this.ipAddress}: ` + error);
                 this.peers[ipAddress] = false;
             }
         }

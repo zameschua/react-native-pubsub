@@ -16,7 +16,7 @@ const RequestManager = {
     async request(httpMethod, ipAddress, endpoint, data) {
         try {
             const axiosConfig = {
-                baseURL: `http://ipAddress`,
+                baseURL: `http://${ipAddress}`,
                 url: endpoint,
                 method: httpMethod,
                 data: data,
@@ -28,7 +28,7 @@ const RequestManager = {
             }
             return response;
         } catch (error) {
-            console.log(error);
+            console.log(JSON.stringify(error));
         }
     },
 
@@ -74,10 +74,10 @@ const RequestManager = {
 }
 
 const HttpMethod = Object.freeze({
-    GET: "get",
-    PUT: "put",
-    POST: "post",
-    DELETE: "delete",
+    GET: "GET",
+    PUT: "PUT",
+    POST: "POST",
+    DELETE: "DELETE",
 });
 
 

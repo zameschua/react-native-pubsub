@@ -29,6 +29,9 @@ const PubSub = {
     // Network mask
     subnet: "",
 
+    // Users can register a listener to be notified when a peer joins
+    peerJoinedListener: null,
+
     async init() {
         try {
             this.peers = {};
@@ -36,11 +39,7 @@ const PubSub = {
             this.channelCallbackSubscribeMap = {};
             this.ipAddress = await NetworkInfo.getIPAddress();
             this.subnet = await NetworkInfo.getSubnet();
-            console.log(this.subnet);
-            console.log(this.broadcastIpAddress);
-
-
-
+console.log(this.ipAddress);
             // Set up http listeners for incoming requests
             // This method is asynchronous but the API doesn't reflect it :(
             httpBridge.start(this.PORT_NUMBER, 'react-native-pubsub', this._routes);
@@ -54,7 +53,7 @@ const PubSub = {
             NetInfo.addEventListener(state => {
                 console.log(`PubSub ${this.ipAddress}: The connection state has changed to ${state.type} ${state.isConnected? 'connected' : 'disconnected'}`);
                 if (state.type === "wifi" && state.isConnected) {
-                    this._joinNetwork();
+                   this._joinNetwork();
                 }
             });
         } catch (error) {
@@ -117,6 +116,10 @@ const PubSub = {
         return this.peers;
     },
 
+    registerPeerJoinedListener(callback) {
+        this.peerJoinedListener = callback;
+    },
+
     /**
      * Broadcasts your arrival to all peers on the LAN via the http://broadcastIpAddress:portNum/healthcheck endpoint
      */
@@ -127,16 +130,28 @@ const PubSub = {
             const firstAddress = subnetInfo.firstAddress;
             let targetIpAddress = firstAddress;
             for (let i = 0; i < numHosts; i++) {
+                // Don't send to ourself
+                if (targetIpAddress === this.ipAddress) {
+                    targetIpAddress = IpUtil.fromLong(IpUtil.toLong(targetIpAddress) + 1); // Calculate the next IP address to poke
+                    continue;
+                }
                 RequestManager.request(HttpMethod.POST, targetIpAddress, this.PORT_NUMBER, '/join', {
                     requesterIpAddress: this.ipAddress,
                 });
                 targetIpAddress = IpUtil.fromLong(IpUtil.toLong(targetIpAddress) + 1); // Calculate the next IP address to poke
+                // await this.sleep(10);
             }
         } catch (error) {
             console.error(`PubSub ${this.ipAddress}: Failed to join network`);
             console.error(error);
             throw error;
         }
+    },
+
+    async sleep(ms) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        })
     },
 
     async _leaveNetwork() {
@@ -169,7 +184,7 @@ const PubSub = {
     async _healthcheckPeers() {
         for (let ipAddress in this.peers) {
             try{
-                const response = await RequestManager.request(HttpMethod.GET, ipAddress, this.PORT_NUMBER, '/healthcheck', null);
+                const response = await RequestManager.request(HttpMethod.POST, ipAddress, this.PORT_NUMBER, '/healthcheck', null);
                 if (response) {
                     this.peers[ipAddress] = true;
                 } else {
@@ -189,19 +204,23 @@ const PubSub = {
      * @private
      */
     _routes(request) {
+        console.log(request);
+        console.log(PubSub.peers);
         // Can use request.url, request.type and request.postData here
 
         /**
          * POST /join {requesterIpAddress}
          * Called when a new host tries to join the network / A disconnected host manages to reconnect
-         * Similar to the GET /healthcheck endpoint,
+         * Similar to the POST /healthcheck endpoint,
          * But for /join, we immediately send the requester a /healthcheck request
          * Then send all the backlogged requests for the joining host sequentially
          */
         if (request.type === HttpMethod.POST && request.url.split("/")[1] === "join") {
+            console.log("Found peer! Adding peer.......");
+
             if (!request.postData ||
                 !request.postData.requesterIpAddress) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
+                httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
                     status: Status.FAILURE,
                     message: "requesterIpAddress missing from postData"
                 }));
@@ -209,16 +228,22 @@ const PubSub = {
 
             // Add the joining host
             const requesterIpAddress = request.postData.requesterIpAddress;
-            this.peers[requesterIpAddress] = true;
+            PubSub.peers[requesterIpAddress] = true;
 
             // Call healthcheck on the host trying to join the network
             // We don't send the return data in the http response because the requester is broadcasting and may not be
             // listening specifically for this host
-            httpBridge.respond(200, "application/json", null);
-            RequestManager.request('GET', requesterIpAddress, this.PORT_NUMBER, '/healthcheck', {
-                requesterIpAddress: this.ipAddress,
+            // httpBridge.respond(request.requestId, 200, "application/json", null);
+
+            RequestManager.request(HttpMethod.POST, requesterIpAddress, PubSub.PORT_NUMBER, '/healthcheck', {
+                requesterIpAddress: PubSub.ipAddress,
             });
-            RequestManager.releaseBacklog(requesterIpAddress);
+
+            // RequestManager.releaseBacklog(requesterIpAddress);
+
+            if (PubSub.peerJoinedListener) {
+                PubSub.peerJoinedListener();
+            }
         }
 
         /**
@@ -228,45 +253,52 @@ const PubSub = {
         if (request.type === HttpMethod.POST && request.url.split("/")[1] === "leave") {
             if (!request.postData ||
                 !request.postData.requesterIpAddress) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
-                    status: Status.FAILURE,
-                    message: "requesterIpAddress missing from postData"
-                }));
+                // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+                //     status: Status.FAILURE,
+                //     message: "requesterIpAddress missing from postData"
+                // }));
+                console.log("requesterIpAddress missing from postData");
+                return;
             }
             const requesterIpAddress = request.postData.requesterIpAddress;
             // Remove the host for all subscriptions
-            for (let channel in this.channelIpAddressesPublishMap) {
-                const ipAddresses = this.channelIpAddressesPublishMap[channel];
+            for (let channel in PubSub.channelIpAddressesPublishMap) {
+                const ipAddresses = PubSub.channelIpAddressesPublishMap[channel];
                 if (ipAddresses.includes(requesterIpAddress)) {
-                    this.channelIpAddressesPublishMap[channel] = ipAddresses.filter(ipAddress => ipAddress !== requesterIpAddress);
+                    PubSub.channelIpAddressesPublishMap[channel] = ipAddresses.filter(ipAddress => ipAddress !== requesterIpAddress);
                 }
             }
-            delete this.peers[requesterIpAddress];
+            delete PubSub.peers[requesterIpAddress];
 
-            httpBridge.respond(200, "application/json", JSON.stringify({
+            httpBridge.respond(request.requestId, 200, "application/json", JSON.stringify({
                 status: Status.SUCCESS
             }));
         }
 
-        // GET /healthcheck {requesterIpAddress}
+        // POST /healthcheck {requesterIpAddress}
         if (request.type === HttpMethod.POST && request.url.split("/")[1] === "healthcheck") {
             if (!request.postData ||
                 !request.postData.requesterIpAddress) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
-                    status: Status.FAILURE,
-                    message: "Missing fields from postData, expected [requesterIpAddress] fields",
-                }));
+                // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+                //     status: Status.FAILURE,
+                //     message: "Missing fields from postData, expected [requesterIpAddress] fields",
+                // }));
+                console.log("Missing fields from postData, expected [requesterIpAddress] fields");
+                return;
             }
 
             // Add to our list of connectedPeers
             const requesterIpAddress = request.postData.requesterIpAddress;
-            if (!this.peers.includes(requesterIpAddress)) {
-                this.peers[requesterIpAddress] = true;
+            console.log("Adding peer");
+            if (!Object.keys(PubSub.peers).includes(requesterIpAddress)) {
+                PubSub.peers[requesterIpAddress] = true;
+                console.log("Adding peer 2");
+                PubSub.peerJoinedListener();
             }
 
-            httpBridge.respond(200, "application/json", JSON.stringify({
-                status: Status.SUCCESS
-            }));
+            // httpBridge.respond(request.requestId, 200, "application/json", JSON.stringify({
+            //     status: Status.SUCCESS
+            // }));
         }
 
         // POST /subscribe {requesterIpAddress, channel}
@@ -274,24 +306,24 @@ const PubSub = {
             if (!request.postData ||
                 !request.postData.requesterIpAddress ||
                 !request.postData.channel) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
-                    status: Status.FAILURE,
-                    message: "Missing fields from postData, expected [requesterIpAddress, channel] fields",
-                }));
+                // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+                //     status: Status.FAILURE,
+                //     message: "Missing fields from postData, expected [requesterIpAddress, channel] fields",
+                // }));
             }
             const requesterIpAddress = request.postData.requesterIpAddress;
             const channel = request.postData.channel;
             // Create a channel on this host if it doesn't exist
-            if (!this.channelIpAddressesPublishMap[channel]) {
-                this.channelIpAddressesPublishMap[channel] = [];
+            if (!PubSub.channelIpAddressesPublishMap[channel]) {
+                PubSub.channelIpAddressesPublishMap[channel] = [];
             }
             // Add the requester to this channelIpAddressesPublishMap if he is not in it yet
-            if (!this.channelIpAddressesPublishMap[channel].includes(requesterIpAddress)) {
-                this.channelIpAddressesPublishMap[channel].push(requesterIpAddress);
+            if (!PubSub.channelIpAddressesPublishMap[channel].includes(requesterIpAddress)) {
+                PubSub.channelIpAddressesPublishMap[channel].push(requesterIpAddress);
             }
-            httpBridge.respond(200, "application/json", JSON.stringify({
-                status: Status.SUCCESS
-            }));
+            // httpBridge.respond(request.requestId, 200, "application/json", JSON.stringify({
+            //     status: Status.SUCCESS
+            // }));
         }
 
         // POST /unsubscribe {channel}
@@ -299,24 +331,26 @@ const PubSub = {
             if (!request.postData ||
                 !request.postData.requesterIpAddress ||
                 !request.postData.channel) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
-                    status: Status.FAILURE,
-                    message: "Missing fields from postData, expected [requesterIpAddress, channel] fields",
-                }));
+                // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+                //     status: Status.FAILURE,
+                //     message: "Missing fields from postData, expected [requesterIpAddress, channel] fields",
+                // }));
+                console.log("Missing fields from postData, expected [requesterIpAddress, channel] fields");
+                return;
             }
             const requesterIpAddress = request.postData.requesterIpAddress;
             const channel = request.postData.channel;
-            if (this.channelIpAddressesPublishMap[channel] &&
-                this.channelIpAddressesPublishMap[channel].includes(requesterIpAddress)) {
-                this.channelIpAddressesPublishMap[channel].remove(requesterIpAddress);
+            if (PubSub.channelIpAddressesPublishMap[channel] &&
+                PubSub.channelIpAddressesPublishMap[channel].includes(requesterIpAddress)) {
+                PubSub.channelIpAddressesPublishMap[channel].remove(requesterIpAddress);
                 // Delete the channel if there are no more hosts listening
-                if (this.channelIpAddressesPublishMap[channel].length === 0) {
-                    delete this.channelIpAddressesPublishMap[channel];
+                if (PubSub.channelIpAddressesPublishMap[channel].length === 0) {
+                    delete PubSub.channelIpAddressesPublishMap[channel];
                 }
             }
-            httpBridge.respond(200, "application/json", JSON.stringify({
-                status: Status.SUCCESS
-            }));
+            // httpBridge.respond(request.requestId, 200, "application/json", JSON.stringify({
+            //     status: Status.SUCCESS
+            // }));
         }
 
         // POST /publish {requesterIpAddress, channel, data}
@@ -325,29 +359,31 @@ const PubSub = {
                 !request.postData.requesterIpAddress ||
                 !request.postData.channel ||
                 !request.postData.data) {
-                httpBridge.respond(400, "application/json", JSON.stringify({
-                    status: Status.FAILURE,
-                    message: "Missing fields from postData, expected [requesterIpAddress, channel, data] fields",
-                }));
+                // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+                //     status: Status.FAILURE,
+                //     message: "Missing fields from postData, expected [requesterIpAddress, channel, data] fields",
+                // }));
+                console.log("Missing fields from postData, expected [requesterIpAddress, channel, data] fields");
+                return;
             }
             // Call the callback function if we are currently listening on the channel
             const channel = request.postData.channel;
-            const callback = this.channelCallbackSubscribeMap[channel];
+            const callback = PubSub.channelCallbackSubscribeMap[channel];
             if (callback) {
                 callback(request.postData.data);
             }
 
-            // Respond
-            httpBridge.respond(200, "application/json", JSON.stringify({
-                status: Status.SUCCESS
-            }));
+            // // Respond
+            // httpBridge.respond(request.requestId, 200, "application/json", JSON.stringify({
+            //     status: Status.SUCCESS
+            // }));
         }
 
-        // Default
-        httpBridge.respond(400, "application/json", JSON.stringify({
-            status: Status.FAILURE,
-            message: `Endpoint ${request.type} ${request.url} doesn't exist`,
-        }));
+        // // Default
+        // httpBridge.respond(request.requestId, 400, "application/json", JSON.stringify({
+        //     status: Status.FAILURE,
+        //     message: `Endpoint ${request.type} ${request.url} doesn't exist`,
+        // }));
     },
 }
 

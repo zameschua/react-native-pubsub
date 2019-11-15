@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0ABA196D237D994500CBF35A /* libRCTImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ABA1952237D992F00CBF35A /* libRCTImage.a */; };
 		0AF2130B2379B8C700BBE2BA /* libRCTHttpServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AF2130A2379B8B800BBE2BA /* libRCTHttpServer.a */; };
 		0AF213402379BD8500BBE2BA /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AF2133F2379BD8500BBE2BA /* libReact.a */; };
 		0AF213962379C0AF00BBE2BA /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AF2134C2379C08600BBE2BA /* libRCTWebSocket.a */; };
@@ -20,6 +21,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0ABA1951237D992F00CBF35A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABA194B237D992F00CBF35A /* RCTImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 58B5115D1A9E6B3D00147676;
+			remoteInfo = RCTImage;
+		};
+		0ABA1953237D992F00CBF35A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0ABA194B237D992F00CBF35A /* RCTImage.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2D2A283A1D9B042B00D4039D;
+			remoteInfo = "RCTImage-tvOS";
+		};
 		0AF213092379B8B800BBE2BA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0AF213052379B8B700BBE2BA /* RCTHttpServer.xcodeproj */;
@@ -199,6 +214,7 @@
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
+		0ABA194B237D992F00CBF35A /* RCTImage.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTImage.xcodeproj; path = "../node_modules/react-native/Libraries/Image/RCTImage.xcodeproj"; sourceTree = "<group>"; };
 		0AF213052379B8B700BBE2BA /* RCTHttpServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTHttpServer.xcodeproj; path = "../node_modules/react-native-http-bridge/ios/RCTHttpServer.xcodeproj"; sourceTree = "<group>"; };
 		0AF2130C2379B9C200BBE2BA /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		0AF2133F2379BD8500BBE2BA /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -226,6 +242,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AF213402379BD8500BBE2BA /* libReact.a in Frameworks */,
+				0ABA196D237D994500CBF35A /* libRCTImage.a in Frameworks */,
 				0AF213E12379DB5A00BBE2BA /* libRCTNetwork.a in Frameworks */,
 				0AF213B82379C24400BBE2BA /* libRCTText.a in Frameworks */,
 				0AF213962379C0AF00BBE2BA /* libRCTWebSocket.a in Frameworks */,
@@ -237,6 +254,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0ABA194C237D992F00CBF35A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0ABA1952237D992F00CBF35A /* libRCTImage.a */,
+				0ABA1954237D992F00CBF35A /* libRCTImage-tvOS.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		0AF213062379B8B700BBE2BA /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -326,6 +352,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				0ABA194B237D992F00CBF35A /* RCTImage.xcodeproj */,
 				0AF213C12379DB4F00BBE2BA /* RCTNetwork.xcodeproj */,
 				0AF2139A2379C23C00BBE2BA /* RCTText.xcodeproj */,
 				0AF213432379C08600BBE2BA /* RCTWebSocket.xcodeproj */,
@@ -397,6 +424,11 @@
 			attributes = {
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = Facebook;
+				TargetAttributes = {
+					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = JHBG7MRG4P;
+					};
+				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "cs3103Demo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -414,6 +446,10 @@
 				{
 					ProductGroup = 0AF213062379B8B700BBE2BA /* Products */;
 					ProjectRef = 0AF213052379B8B700BBE2BA /* RCTHttpServer.xcodeproj */;
+				},
+				{
+					ProductGroup = 0ABA194C237D992F00CBF35A /* Products */;
+					ProjectRef = 0ABA194B237D992F00CBF35A /* RCTImage.xcodeproj */;
 				},
 				{
 					ProductGroup = 0AF213C22379DB4F00BBE2BA /* Products */;
@@ -440,6 +476,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		0ABA1952237D992F00CBF35A /* libRCTImage.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTImage.a;
+			remoteRef = 0ABA1951237D992F00CBF35A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0ABA1954237D992F00CBF35A /* libRCTImage-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRCTImage-tvOS.a";
+			remoteRef = 0ABA1953237D992F00CBF35A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		0AF2130A2379B8B800BBE2BA /* libRCTHttpServer.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -719,6 +769,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = JHBG7MRG4P;
 				INFOPLIST_FILE = cs3103Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -728,6 +779,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = cs3103Demo;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -738,6 +790,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = JHBG7MRG4P;
 				INFOPLIST_FILE = cs3103Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -747,6 +800,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = cs3103Demo;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

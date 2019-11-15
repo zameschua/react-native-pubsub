@@ -1,9 +1,13 @@
 import axios from 'axios';
+delete axios.defaults.headers.post['Content-Type'];
 
 // todo: Add offline support
 const RequestManager = {
     // A queue of axios config objects https://github.com/axios/axios
     map: {},
+
+    // How long we should wait before we consider the request as 'timed out', in ms
+    REQUEST_TIMEOUT_MS: 1000,
 
     /**
      *
@@ -20,19 +24,22 @@ const RequestManager = {
                 url: endpoint,
                 method: httpMethod,
                 data: data,
-            }
+                timeout: this.REQUEST_TIMEOUT_MS,
+            };
             console.log(axiosConfig);
+            // console.log(axiosConfig);
             const response = await axios(axiosConfig);
-            if (response.status !== 200) {
-                this.map[ipAddress].push(axiosConfig);
-                return null;
-            }
+            // if (response.status !== 200) {
+            //     this.map[ipAddress].push(axiosConfig);
+            //     return null;
+            // }
+            console.log(response);
             return response;
         } catch (error) {
             // Don't throw the error because we don't want async errors thrown here to crash our app
             // Also expect to get a lot of errors while we are doing a lanscan
-            console.log("PubSub: ");
-            console.log(error);
+            // console.log("PubSub: ");
+            // console.log(error);
         }
     },
 
@@ -78,10 +85,10 @@ const RequestManager = {
 }
 
 const HttpMethod = Object.freeze({
-    GET: "get",
-    PUT: "put",
-    POST: "post",
-    DELETE: "delete",
+    GET: "GET",
+    PUT: "PUT",
+    POST: "POST",
+    DELETE: "DELETE",
 });
 
 
