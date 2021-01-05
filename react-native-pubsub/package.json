@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@react-native-community/netinfo": "^4.6.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "ip": "^1.1.5",
     "react-native-http-bridge": "^0.6.1",
     "react-native-network-info": "^5.2.1"
