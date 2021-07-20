@@ -24,11 +24,11 @@
   "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "16.9.0",
-    "react-native": "0.61.4"
+    "react-native": "0.62.3"
   },
   "devDependencies": {
     "react": "16.9.0",
-    "react-native": "0.61.4"
+    "react-native": "0.62.3"
   },
   "dependencies": {
     "@react-native-community/netinfo": "^4.6.0",
